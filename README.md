@@ -1,0 +1,1 @@
+# turnike_uygulamasi
