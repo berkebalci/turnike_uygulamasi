@@ -1,19 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:turnike/extensions/context_extentions.dart';
-import 'package:turnike/service/utilty/login_operations.dart';
+import 'package:turnike/service/utilty/login_service.dart';
 import 'package:turnike/view/card_page.dart';
-
 import '../service/model/loginModelClass.dart';
 
-class LoginWidget extends StatefulWidget {
-  const LoginWidget({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<LoginWidget> createState() => _LoginWidgetState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginWidgetState extends State<LoginWidget> {
+class _LoginPageState extends State<LoginPage> {
   late TextEditingController userCodeController;
   late TextEditingController userpasswController;
   late TextEditingController userTenantController;
@@ -61,9 +61,10 @@ class _LoginWidgetState extends State<LoginWidget> {
             controller: userTenantController,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
-                hintText: "Hotel Code"),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
+              hintText: "Hotel Code",
+            ),
           ),
           SizedBox(
             height: context.getdynamicHeight(0.06),
@@ -91,20 +92,40 @@ class _LoginWidgetState extends State<LoginWidget> {
           ElevatedButton(
               onPressed: () async {
                 print("Butona basildi");
-                LoginResponse? responseobject = await LoginOperations.requestLogin(
-                    userCodeController.text,
-                    userpasswController.text,
-                    userTenantController.text);
-                print(responseobject);
+                LoginService.requestLogin(userCodeController.text,
+                        userpasswController.text, userTenantController.text)
+                    .then(
+                  (value) {
+                    Map<String, dynamic> decodedJson = jsonDecode(value.body);
+                    if (decodedJson["Success"] == true &&
+                        decodedJson["LoginToken"] != null) {
+                      LoginResponse responseObject =
+                          LoginService.castmodelClassobject(decodedJson);
+                      print(responseObject);
 
-                if(responseobject?.loginToken != null){
-                    Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => CardPage(
-                    userToken: responseobject!.loginToken!,
-                  ),
-                ));
-                }
-                },
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) {
+                          return CardPage(loginresponse: responseObject);
+                        },
+                      ));
+                    } else {
+                      print("Olumsuz");
+                      throw Exception();
+                    }
+                  },
+                );
+
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return SizedBox(
+                          height: context.getdynamicHeight(0.3),
+                          width: context.getdynamicWidth(0.3),
+                          child: Center(child: CircularProgressIndicator(
+                          color: Colors.amber,
+                          )));
+                    });
+              },
               child: Text("Giriş Yap"))
         ],
       ),

@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:turnike/service/model/loginModelClass.dart';
 
-class LoginOperations {
-  static Future<LoginResponse?> requestLogin(
+class LoginService {
+  static Future<Response> requestLogin(
       String usercode, String userpassword, String tenant) async {
     final url = "https://4001.hoteladvisor.net/Login";
     final response = await http.post(Uri.parse(url), //Client'a istek atıyoruz.
@@ -20,23 +19,18 @@ class LoginOperations {
           "Tenant": tenant,
         }));
     print(response.body);
-
     if (response.statusCode == 200) {
-      //Başarılı
-      print("Başarili");
-      var decodedJson = jsonDecode(response.body);
-      if (decodedJson["Success"] == true) {
-        var responseobject = LoginResponse.fromJson(jsonDecode(response.body));
-        return responseobject;
-      } 
-      else {
-        //AlertDialog() TODO: Yapilacak
-      }
+      return response;
     } else {
-      throw Error();
+      throw Exception();
     }
+    }
+
+  static LoginResponse castmodelClassobject(Map<String,dynamic> decoded) {
+    return LoginResponse.fromJson(decoded);
   }
 }
+
 
 //Success,LoginToken kontrol edilecek
 //Tenancy
