@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:turnike/extensions/context_extentions.dart';
-import 'package:turnike/service/utilty/login_service.dart';
+import 'package:turnike/service/methods/login_service.dart';
 import 'package:turnike/view/card_page.dart';
 import '../service/model/loginModelClass.dart';
 
