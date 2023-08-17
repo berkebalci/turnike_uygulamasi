@@ -15,19 +15,21 @@ class CardPage extends StatefulWidget {
 }
 
 class _CardPageState extends State<CardPage> {
-  final animation = "assets/animation/animation_llavab2y.json";
-  final validCardAnimation = "assets/animation/";
-  final invalidCardAnimation = "";
-  ValueNotifier<dynamic> result = ValueNotifier();
+  final firstAnimation = "assets/animation/animation_llavab2y.json";
+  final validCardAnimation = "assets/animation/valid.json";
+  final invalidCardAnimation = "assets/animation/invalid.json";
+  ValueNotifier<dynamic> result = ValueNotifier(null);
   @override
   void initState() {
     super.initState();
     checknfcAvailibty();
+    result.value = firstAnimation;
   }
 
   void _tagRead() {
     NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
-      result.value = tag.data;
+      print(tag.data);
+      result.value = validCardAnimation;
       NfcManager.instance.stopSession();
     });
   }
@@ -44,15 +46,33 @@ class _CardPageState extends State<CardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-            child: ValueListenableBuilder(child: buildCardAnimation(context))),
+        child: Column(
+          children: [
+            Center(
+                child: ValueListenableBuilder(
+              builder: (context, value, _) {
+                return buildCardAnimation(context, value);
+              },
+              valueListenable: result,
+            )),
+            ElevatedButton(
+                onPressed: () {
+                  print("NFC Read butonuna basildi");
+                  _tagRead();
+                },
+                child: Text("NFC READ"))
+          ],
+        ),
       ),
     );
   }
 
-  LottieBuilder buildCardAnimation(BuildContext context) {
+  LottieBuilder buildCardAnimation(
+    BuildContext context,
+    String given_animation,
+  ) {
     print(widget.loginresponse.success);
-    return Lottie.asset(animation,
+    return Lottie.asset(given_animation,
         width: context.getdynamicWidth(0.5),
         height: context.getdynamicHeight(0.5));
   }
