@@ -42,7 +42,7 @@ class _CardPageState extends State<CardPage> {
         isCardRead.value = true;
         print(tag.data);
         String cardId = (tag.data["nfca"]["identifier"]).toString();
-        String handledCardId = handleCardId(cardId);
+        String handledCardId = handleCardIdList(cardId);
 
         Response response = await CardService.cardRequest(
             widget.loginresponse.loginToken!,
@@ -76,7 +76,7 @@ class _CardPageState extends State<CardPage> {
     });
   }
 
-  String handleCardId(String cardid) {
+  String handleCardIdList(String cardid) {
     String handledString =
         cardid.replaceAll("[", "").replaceAll("]", "").replaceAll(",", "");
     return handledString;
