@@ -49,6 +49,7 @@ class _CardPageState extends State<CardPage> {
             handledCardId,
             widget.loginresponse.tenancy?.hotelid);
         Map<String, dynamic> decodedBody = jsonDecode(response.body)[0][0];
+        print(decodedBody);
         if (decodedBody["SUCCESS"] == true) {
           print("Successfuly readed");
           result.value = validCardAnimation;
@@ -78,7 +79,8 @@ class _CardPageState extends State<CardPage> {
 
   String handleCardIdList(String cardid) {
     String handledString =
-        cardid.replaceAll("[", "").replaceAll("]", "").replaceAll(",", "");
+        cardid.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "");
+    print(handledString);
     return handledString;
   }
 

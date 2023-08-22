@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:turnike/Global/global.dart';
 import 'package:turnike/extensions/context_extentions.dart';
 import 'package:turnike/service/methods/login_service.dart';
 import 'package:turnike/view/card_page.dart';
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
     userCodeController = TextEditingController();
     userpasswController = TextEditingController();
     userTenantController = TextEditingController();
+    passwordVisibility$.value = true; //Behavior Subject value
   }
 
   @override
@@ -37,13 +39,15 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(
+        title: Text(
           "Login Page",
           style: GoogleFonts.roboto(),
         ),
         centerTitle: true,
       ),
-      body: SafeArea(child: SingleChildScrollView(child: buildTextFields())),
+      body: SafeArea(
+          child: SingleChildScrollView(
+              child: buildTextFields())),
     );
   }
 
@@ -70,22 +74,38 @@ class _LoginPageState extends State<LoginPage> {
             height: context.getdynamicHeight(0.06),
           ),
           TextField(
+              
               textAlign: TextAlign.center,
               controller: userCodeController,
               decoration: InputDecoration(
-                  border: OutlineInputBorder(
+              border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25)),
                   hintText: "User Code")),
           SizedBox(
             height: context.getdynamicHeight(0.06),
           ),
-          TextField(
-              textAlign: TextAlign.center,
-              controller: userpasswController,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25)),
-                  hintText: "User Password")),
+          StreamBuilder(
+            stream: passwordVisibility$.stream,
+            initialData: true,
+            builder: (context, snapshot) {
+              return TextField(
+                  obscureText: snapshot.data!,
+                  textAlign: TextAlign.center,
+                  controller: userpasswController,
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: snapshot.data!
+                            ? Icon(Icons.visibility)
+                            : Icon(Icons.visibility_off),
+                        onPressed: () {
+                          passwordVisibility$.value = !passwordVisibility$.value;
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25)),
+                      hintText: "User Password"));
+            }
+          ),
           SizedBox(
             height: context.getdynamicHeight(0.06),
           ),
@@ -121,8 +141,9 @@ class _LoginPageState extends State<LoginPage> {
                       return SizedBox(
                           height: context.getdynamicHeight(0.3),
                           width: context.getdynamicWidth(0.3),
-                          child: Center(child: CircularProgressIndicator(
-                          color: Colors.amber,
+                          child: Center(
+                              child: CircularProgressIndicator(
+                            color: Colors.amber,
                           )));
                     });
               },
