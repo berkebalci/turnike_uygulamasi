@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     userpasswController = TextEditingController();
     userTenantController = TextEditingController();
     passwordVisibility$.value = true; //Behavior Subject value
-    }
+  }
 
   @override
   void dispose() {
@@ -40,10 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
-      
-      body: SafeArea(
-          child: SingleChildScrollView(child: buildTextFields())),
+      body: SafeArea(child: SingleChildScrollView(child: buildTextFields())),
     );
   }
 
@@ -54,18 +51,21 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            child: Lottie.asset(loginAnimation,fit: BoxFit.fill)
-            ,height:context.getdynamicHeight(0.3) ,width:context.getdynamicWidth(0.7) ,)
-          ,SizedBox(
+            child: Lottie.asset(loginAnimation, fit: BoxFit.fill),
+            height: context.getdynamicHeight(0.3),
+            width: context.getdynamicWidth(0.7),
+          ),
+          SizedBox(
             height: context.getdynamicHeight(0.02),
           ),
-          Text("Welcome",style: TextStyle(fontSize: 40,fontFamily: "proxima"),),
-
+          Text(
+            "Welcome",
+            style: TextStyle(fontSize: 40, fontFamily: "proxima"),
+          ),
           TextField(
             style: TextStyle(),
             controller: userTenantController,
             decoration: InputDecoration(
-              
               labelText: "Hotel Code",
             ),
           ),
@@ -73,70 +73,73 @@ class _LoginPageState extends State<LoginPage> {
             height: context.getdynamicHeight(0.02),
           ),
           TextField(
-              textAlign: TextAlign.center,
               controller: userCodeController,
-              decoration: InputDecoration(
-              
-                  labelText: "User Code")),
+              decoration: InputDecoration(labelText: "User Code")),
           SizedBox(
             height: context.getdynamicHeight(0.02),
           ),
           StreamBuilder(
-            stream: passwordVisibility$.stream,
-            initialData: true,
-            builder: (context, snapshot) {
-              return TextField(
-                  obscureText: snapshot.data!,
-                  controller: userpasswController,
-                  decoration: InputDecoration(
-                      suffixIcon: IconButton(
-                        icon: snapshot.data!
-                            ? Icon(Icons.visibility)
-                            : Icon(Icons.visibility_off),
-                        onPressed: () {
-                          passwordVisibility$.value = !passwordVisibility$.value;
-                        },
-                      ),
-                      
-                      hintText: "User Password"));
-            }
-          ),
+              stream: passwordVisibility$.stream,
+              initialData: true,
+              builder: (context, snapshot) {
+                return TextField(
+                    obscureText: snapshot.data!,
+                    controller: userpasswController,
+                    decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: snapshot.data!
+                              ? Icon(Icons.visibility)
+                              : Icon(Icons.visibility_off),
+                          onPressed: () {
+                            passwordVisibility$.value =
+                                !passwordVisibility$.value;
+                          },
+                        ),
+                        hintText: "User Password"));
+              }),
           SizedBox(
             height: context.getdynamicHeight(0.04),
           ),
-          ElevatedButton(
-              onPressed: buildloginButton,
-              child: Text("Giriş Yap"))
+          ElevatedButton(onPressed: buildloginButton, child: Text("Giriş Yap"))
         ],
       ),
     );
   }
-  Future buildloginButton() async{
+
+  Future buildloginButton() async {
     print("Butona basildi");
-    LoginService.requestLogin(userCodeController.text,
-            userpasswController.text, userTenantController.text)
-        .then(
-      (value) {
-        Map<String, dynamic> decodedJson = jsonDecode(value.body);
-        if (decodedJson["Success"] == true &&
-            decodedJson["LoginToken"] != null) {
-          LoginResponse responseObject =
-              LoginService.castmodelClassobject(decodedJson);
-          print(responseObject);
-
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) {
-              return CardPage(loginresponse: responseObject);
-            },
-          ));
-        } else {
-          print("Olumsuz");
-          throw Exception();
-        }
-      },
-    );
-
-    showDialog(
+    try {
+      LoginService.requestLogin(userCodeController.text,
+              userpasswController.text, userTenantController.text)
+          .then(
+        (value) {
+          print(value);
+          Map<String, dynamic> decodedJson = jsonDecode(value.body);
+          if (decodedJson["Success"] == true &&
+              decodedJson["LoginToken"] != null) {
+            print("if girdi");
+            LoginResponse responseObject =
+                LoginService.castmodelClassobject(decodedJson);
+            print(responseObject);
+            print("başarılı");
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        CardPage(loginresponse: responseObject)));
+          } else {
+            print("Olumsuz");
+            Navigator.of(context).pop();
+            showDialog(
+              context: context,
+              builder: (context) {
+                return buildAlertDilaog();
+              },
+            );
+          }
+        },
+      );
+      showDialog(
         context: context,
         builder: (context) {
           return SizedBox(
@@ -147,5 +150,29 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.amber,
               )));
         });
+    } catch (e) {
+      print("The error is $e");
+    }
+
+    
+  }
+
+  AlertDialog buildAlertDilaog() {
+    return AlertDialog(
+      title: Text(
+        "2FA Authentication",
+        style: TextStyle(fontFamily: "proxima"),
+      ),
+      content: TextFormField(
+        decoration: InputDecoration(labelText: "Enter your 2FA key"),
+      ),
+      actions: [
+        ElevatedButton(
+            onPressed: () {
+              print("buton"); //TODO: Burasi yapilacak.
+            },
+            child: Text("Ok"))
+      ],
+    );
   }
 }
