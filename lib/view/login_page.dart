@@ -106,17 +106,28 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future buildloginButton() async {
+  Future buildloginButton({String? AuthCode}) async {
     print("Butona basildi");
     try {
       LoginService.requestLogin(userCodeController.text,
-              userpasswController.text, userTenantController.text)
+              userpasswController.text, userTenantController.text,
+              authCode: AuthCode)
           .then(
         (value) {
           print(value);
           Map<String, dynamic> decodedJson = jsonDecode(value.body);
           if (decodedJson["Success"] == true &&
               decodedJson["LoginToken"] != null) {
+            switch (decodedJson["Code"]) {
+              case "0":
+                break;
+              case "30":
+                buildAlertDialog(context, "2FA Authentication");
+              case "31":
+                buildAlertDialog(context, "Wrong Authentication");
+              case "90":
+                buildAlertDialog(context, "2FA Authentication");
+            }
             print("if girdi");
             LoginResponse responseObject =
                 LoginService.castmodelClassobject(decodedJson);
@@ -130,49 +141,55 @@ class _LoginPageState extends State<LoginPage> {
           } else {
             print("Olumsuz");
             Navigator.of(context).pop();
-            showDialog(
-              context: context,
-              builder: (context) {
-                return buildAlertDilaog();
-              },
-            );
+            buildAlertDialog(context,
+                "Invalid information entered"); //TODO: Gereksiz textfield var.
           }
         },
       );
       showDialog(
-        context: context,
-        builder: (context) {
-          return SizedBox(
-              height: context.getdynamicHeight(0.3),
-              width: context.getdynamicWidth(0.3),
-              child: Center(
-                  child: CircularProgressIndicator(
-                color: Colors.amber,
-              )));
-        });
+          context: context,
+          builder: (context) {
+            return SizedBox(
+                height: context.getdynamicHeight(0.3),
+                width: context.getdynamicWidth(0.3),
+                child: Center(
+                    child: CircularProgressIndicator(
+                  color: Colors.amber,
+                )));
+          });
     } catch (e) {
       print("The error is $e");
     }
-
-    
   }
 
-  AlertDialog buildAlertDilaog() {
-    return AlertDialog(
-      title: Text(
-        "2FA Authentication",
-        style: TextStyle(fontFamily: "proxima"),
-      ),
-      content: TextFormField(
-        decoration: InputDecoration(labelText: "Enter your 2FA key"),
-      ),
-      actions: [
-        ElevatedButton(
-            onPressed: () {
-              print("buton"); //TODO: Burasi yapilacak.
-            },
-            child: Text("Ok"))
-      ],
+  void buildAlertDialog(
+    BuildContext context,
+    String message,
+  ) {
+    final controller = TextEditingController();
+    Navigator.of(context).pop();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            message,
+            style: TextStyle(fontFamily: "proxima"),
+          ),
+          content: TextFormField(
+            controller: controller,
+            decoration: InputDecoration(labelText: "Enter your 2FA key"),
+          ),
+          actions: [
+            ElevatedButton(
+                onPressed: () {
+                  print("Alert dialog butona basildi"); //TODO: Burasi yapilacak.
+                  
+                },
+                child: Text("Ok"))
+          ],
+        );
+      },
     );
   }
 }
