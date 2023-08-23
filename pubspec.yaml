@@ -65,9 +65,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-
+  fonts:
+    - family: proxima
+      fonts:
+        - asset: assets/fonts/proxima-nova-14.ttf
   assets:
      - assets/animation/
+     
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

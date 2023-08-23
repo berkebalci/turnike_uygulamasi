@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:turnike/Global/global.dart';
 import 'package:turnike/extensions/context_extentions.dart';
 import 'package:turnike/service/methods/login_service.dart';
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   late TextEditingController userCodeController;
   late TextEditingController userpasswController;
   late TextEditingController userTenantController;
+  String loginAnimation = "assets/animation/login_animation.json";
   @override
   void initState() {
     super.initState();
@@ -25,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     userpasswController = TextEditingController();
     userTenantController = TextEditingController();
     passwordVisibility$.value = true; //Behavior Subject value
-  }
+    }
 
   @override
   void dispose() {
@@ -38,16 +40,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Login Page",
-          style: GoogleFonts.roboto(),
-        ),
-        centerTitle: true,
-      ),
+      
+      
       body: SafeArea(
-          child: SingleChildScrollView(
-              child: buildTextFields())),
+          child: SingleChildScrollView(child: buildTextFields())),
     );
   }
 
@@ -58,31 +54,30 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: context.getdynamicHeight(0.15),
+            child: Lottie.asset(loginAnimation,fit: BoxFit.fill)
+            ,height:context.getdynamicHeight(0.3) ,width:context.getdynamicWidth(0.7) ,)
+          ,SizedBox(
+            height: context.getdynamicHeight(0.05),
           ),
           TextField(
             style: TextStyle(),
             controller: userTenantController,
-            textAlign: TextAlign.center,
             decoration: InputDecoration(
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
-              hintText: "Hotel Code",
+              
+              labelText: "Hotel Code",
             ),
           ),
           SizedBox(
-            height: context.getdynamicHeight(0.06),
+            height: context.getdynamicHeight(0.02),
           ),
           TextField(
-              
               textAlign: TextAlign.center,
               controller: userCodeController,
               decoration: InputDecoration(
-              border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25)),
-                  hintText: "User Code")),
+              
+                  labelText: "User Code")),
           SizedBox(
-            height: context.getdynamicHeight(0.06),
+            height: context.getdynamicHeight(0.02),
           ),
           StreamBuilder(
             stream: passwordVisibility$.stream,
@@ -90,7 +85,6 @@ class _LoginPageState extends State<LoginPage> {
             builder: (context, snapshot) {
               return TextField(
                   obscureText: snapshot.data!,
-                  textAlign: TextAlign.center,
                   controller: userpasswController,
                   decoration: InputDecoration(
                       suffixIcon: IconButton(
@@ -101,55 +95,55 @@ class _LoginPageState extends State<LoginPage> {
                           passwordVisibility$.value = !passwordVisibility$.value;
                         },
                       ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25)),
+                      
                       hintText: "User Password"));
             }
           ),
           SizedBox(
-            height: context.getdynamicHeight(0.06),
+            height: context.getdynamicHeight(0.04),
           ),
           ElevatedButton(
-              onPressed: () async {
-                print("Butona basildi");
-                LoginService.requestLogin(userCodeController.text,
-                        userpasswController.text, userTenantController.text)
-                    .then(
-                  (value) {
-                    Map<String, dynamic> decodedJson = jsonDecode(value.body);
-                    if (decodedJson["Success"] == true &&
-                        decodedJson["LoginToken"] != null) {
-                      LoginResponse responseObject =
-                          LoginService.castmodelClassobject(decodedJson);
-                      print(responseObject);
-
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) {
-                          return CardPage(loginresponse: responseObject);
-                        },
-                      ));
-                    } else {
-                      print("Olumsuz");
-                      throw Exception();
-                    }
-                  },
-                );
-
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return SizedBox(
-                          height: context.getdynamicHeight(0.3),
-                          width: context.getdynamicWidth(0.3),
-                          child: Center(
-                              child: CircularProgressIndicator(
-                            color: Colors.amber,
-                          )));
-                    });
-              },
+              onPressed: buildloginButton,
               child: Text("Giriş Yap"))
         ],
       ),
     );
+  }
+  Future buildloginButton() async{
+    print("Butona basildi");
+    LoginService.requestLogin(userCodeController.text,
+            userpasswController.text, userTenantController.text)
+        .then(
+      (value) {
+        Map<String, dynamic> decodedJson = jsonDecode(value.body);
+        if (decodedJson["Success"] == true &&
+            decodedJson["LoginToken"] != null) {
+          LoginResponse responseObject =
+              LoginService.castmodelClassobject(decodedJson);
+          print(responseObject);
+
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return CardPage(loginresponse: responseObject);
+            },
+          ));
+        } else {
+          print("Olumsuz");
+          throw Exception();
+        }
+      },
+    );
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return SizedBox(
+              height: context.getdynamicHeight(0.3),
+              width: context.getdynamicWidth(0.3),
+              child: Center(
+                  child: CircularProgressIndicator(
+                color: Colors.amber,
+              )));
+        });
   }
 }
