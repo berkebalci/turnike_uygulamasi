@@ -57,8 +57,10 @@ class _LoginPageState extends State<LoginPage> {
             child: Lottie.asset(loginAnimation,fit: BoxFit.fill)
             ,height:context.getdynamicHeight(0.3) ,width:context.getdynamicWidth(0.7) ,)
           ,SizedBox(
-            height: context.getdynamicHeight(0.05),
+            height: context.getdynamicHeight(0.02),
           ),
+          Text("Welcome",style: TextStyle(fontSize: 40,fontFamily: "proxima"),),
+
           TextField(
             style: TextStyle(),
             controller: userTenantController,
