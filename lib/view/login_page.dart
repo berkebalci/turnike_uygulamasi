@@ -73,8 +73,10 @@ class _LoginPageState extends State<LoginPage> {
             height: context.getdynamicHeight(0.02),
           ),
           TextField(
+              keyboardType: TextInputType.number,
               controller: userCodeController,
-              decoration: InputDecoration(labelText: "User Code")),
+              decoration: InputDecoration(
+                labelText: "User Code")),
           SizedBox(
             height: context.getdynamicHeight(0.02),
           ),
@@ -118,21 +120,11 @@ class _LoginPageState extends State<LoginPage> {
           Map<String, dynamic> decodedJson = jsonDecode(value.body);
           if (decodedJson["Success"] == true &&
               decodedJson["LoginToken"] != null) {
-            switch (decodedJson["Code"]) {
-              case "0":
-                break;
-              case "30":
-                buildAlertDialog(context, "2FA Authentication");
-              case "31":
-                buildAlertDialog(context, "Wrong Authentication");
-              case "90":
-                buildAlertDialog(context, "2FA Authentication");
-            }
             print("if girdi");
             LoginResponse responseObject =
                 LoginService.castmodelClassobject(decodedJson);
             print(responseObject);
-            print("başarılı");
+            print("başarili");
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -140,9 +132,24 @@ class _LoginPageState extends State<LoginPage> {
                         CardPage(loginresponse: responseObject)));
           } else {
             print("Olumsuz");
-            Navigator.of(context).pop();
-            buildAlertDialog(context,
-                "Invalid information entered"); //TODO: Gereksiz textfield var.
+            switch (decodedJson["Code"]) {
+              case "0":
+                buildAlertDialog(context, "Unsuccessful Login",
+                    "Please check your information",
+                    isTextFieldVisible: false);
+                break;
+              case "30":
+                buildAlertDialog(
+                    context, "2FA Authentication", "Please Enter Your 2FA key");
+              case "31":
+                buildAlertDialog(context, "Wrong 2FA",
+                    "Please check your 2FA and try again");
+              case "90":
+                buildAlertDialog(context, "Suspicious Login",
+                    "Your IP seems suspicious. Please contact with supervisor");
+            }
+
+            //TODO: Gereksiz textfield var.
           }
         },
       );
@@ -163,9 +170,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void buildAlertDialog(
-    BuildContext context,
+    BuildContext context, 
+    String title, 
     String message,
-  ) {
+    {bool isTextFieldVisible = true}) {
     final controller = TextEditingController();
     Navigator.of(context).pop();
     showDialog(
@@ -173,19 +181,32 @@ class _LoginPageState extends State<LoginPage> {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            message,
+            title,
             style: TextStyle(fontFamily: "proxima"),
           ),
           content: TextFormField(
-            controller: controller,
-            decoration: InputDecoration(labelText: "Enter your 2FA key"),
+            maxLength: 6,
+            keyboardType: TextInputType.number
+            ,controller: controller,
+            decoration: InputDecoration(
+              counterText: "",
+                labelText: message, labelStyle: TextStyle(fontSize: 15)),
           ),
           actions: [
             ElevatedButton(
-                onPressed: () {
-                  print("Alert dialog butona basildi"); //TODO: Burasi yapilacak.
-                  
-                },
+                onPressed: isTextFieldVisible
+                    ? () async {
+                        print(
+                            "Alert dialog butona basildi"); //TODO: Burasi yapilacak.
+                        AuthCode$.value = controller.text;
+                        Navigator.of(context).pop();
+                        print("Sj");
+                        await buildloginButton(AuthCode: AuthCode$.value);
+                      }
+                    : () {
+                        Navigator.of(context).pop();
+                        print("Code 0, ALERT Dialog'a basildi");
+                      },
                 child: Text("Ok"))
           ],
         );
