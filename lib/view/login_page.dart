@@ -40,7 +40,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: SingleChildScrollView(child: buildTextFields())),
+      body: SafeArea(
+        child: SingleChildScrollView(child: buildTextFields())),
     );
   }
 
@@ -63,7 +64,10 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(fontSize: 40, fontFamily: "proxima"),
           ),
           TextField(
-            style: TextStyle(),
+            onTapOutside: (event) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            keyboardType: TextInputType.number,
             controller: userTenantController,
             decoration: InputDecoration(
               labelText: "Hotel Code",
@@ -73,7 +77,6 @@ class _LoginPageState extends State<LoginPage> {
             height: context.getdynamicHeight(0.02),
           ),
           TextField(
-              keyboardType: TextInputType.number,
               controller: userCodeController,
               decoration: InputDecoration(
                 labelText: "User Code")),
@@ -97,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                 !passwordVisibility$.value;
                           },
                         ),
-                        hintText: "User Password"));
+                        labelText: "User Password"));
               }),
           SizedBox(
             height: context.getdynamicHeight(0.04),
