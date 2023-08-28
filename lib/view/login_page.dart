@@ -117,22 +117,20 @@ class _LoginPageState extends State<LoginPage> {
       LoginService.requestLogin(userCodeController.text,
               userpasswController.text, userTenantController.text,
               authCode: AuthCode)
-          .then(
+          .then( 
         (value) {
           print(value);
           Map<String, dynamic> decodedJson = jsonDecode(value.body);
           if (decodedJson["Success"] == true &&
               decodedJson["LoginToken"] != null) {
-            print("if girdi");
-            LoginResponse responseObject =
-                LoginService.castmodelClassobject(decodedJson);
-            print(responseObject);
+            loginObject$.value = LoginService.castmodelClassobject(decodedJson);
+            print(loginObject$.value);
             print("başarili");
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) =>
-                        CardPage(loginresponse: responseObject)));
+                        CardPage(loginresponse: loginObject$.value)));
           } else {
             print("Olumsuz");
             switch (decodedJson["Code"]) {

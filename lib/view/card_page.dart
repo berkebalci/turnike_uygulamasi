@@ -73,7 +73,7 @@ class _CardPageState extends State<CardPage> {
         }
       }
 
-      //NfcManager.instance.stopSession();
+      //NfcManager.instance.stopSession(); //This stops nfc reading 
     });
   }
 
