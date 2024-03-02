@@ -1,4 +1,8 @@
-This is a Mobile Turnstile App that I developed during my software summer internship. Here is some information about the app:<br />
+This is a Mobile Turnstile App that I developed during my software summer internship. Staff would use this app when confirm whether guests' cards are valid or not by NFC reading feature of this app.
+
+
+
+Here is some information about the app:<br />
 <br />
 
 Framework: Flutter & Dart<br />
